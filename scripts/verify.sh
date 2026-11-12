@@ -53,6 +53,11 @@ echo "==> Checking generated API types"
 pnpm --filter frontend api:generate
 git diff --exit-code -- frontend/src/lib/api/schema.d.ts
 
+echo "==> Checking API version alignment"
+grep -q 'url: /api/v1' contracts/openapi.yaml
+grep -q 'String V1 = "/api/v1"' backend/src/main/java/mu/uwais/fintrellis/web/ApiPaths.java
+grep -q '^VITE_API_BASE_URL=/api/v1' frontend/.env.example
+
 echo "==> Validating the Compose file"
 docker compose config --quiet
 

@@ -50,6 +50,13 @@ pnpm dev                                  # terminal 2, http://localhost:5173
 pnpm dev:mock                             # or: mock API, no backend or Keycloak
 ```
 
+For the local profile, which turns on application debug logging and formatted SQL:
+
+```bash
+cd backend
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+```
+
 The Vite dev server proxies `/api` to Spring on port 8080. The mock mode uses MSW
 and needs no database or identity provider. Its header controls switch between
 signed-out, reader, editor, and administrator, plus populated, empty, service
@@ -76,8 +83,26 @@ pnpm test:e2e        # browser journey against the running stack
 `/usr/lib/jvm` installation. The same checks run in GitHub Actions, with an
 additional Playwright job that starts the Compose stack.
 
-The current suite has 23 backend tests, 21 frontend tests, and 4 browser journeys.
+The current suite has 26 backend tests, 21 frontend tests, and 4 browser journeys.
 The browser journeys use the real identity provider and database, not mocks.
+
+### Code quality
+
+A local SonarQube Community instance runs behind the `quality` Compose profile, so
+it is not part of the normal stack:
+
+```bash
+pnpm quality:up
+# Open http://localhost:9000, sign in with the initial admin account,
+# change the password, and create a user token.
+export SONAR_TOKEN=<token>
+pnpm quality:scan
+pnpm quality:down
+```
+
+The scan reads backend JaCoCo XML and frontend LCOV coverage. Generated API types,
+the MSW worker, and build output are excluded. Work through actionable findings
+manually; Sonar reports issues rather than editing source.
 
 ### Test coverage
 
@@ -113,11 +138,11 @@ tests/e2e/        Playwright journeys
 
 | Method | Path             | Access                          |
 | ------ | ---------------- | ------------------------------- |
-| GET    | `/api/posts`     | Public; `page`, `size`, `q`     |
-| GET    | `/api/posts/{id}`| Public                          |
-| POST   | `/api/posts`     | editor, administrator           |
-| PUT    | `/api/posts/{id}`| editor, administrator           |
-| DELETE | `/api/posts/{id}`| administrator                   |
+| GET    | `/api/v1/posts`     | Public; `page`, `size`, `q`     |
+| GET    | `/api/v1/posts/{id}`| Public                          |
+| POST   | `/api/v1/posts`     | editor, administrator           |
+| PUT    | `/api/v1/posts/{id}`| editor, administrator           |
+| DELETE | `/api/v1/posts/{id}`| administrator                   |
 
 `contracts/openapi.yaml` is the source for the generated frontend types. Errors use
 RFC 9457 problem responses and include `fieldErrors` and a `requestId`.
