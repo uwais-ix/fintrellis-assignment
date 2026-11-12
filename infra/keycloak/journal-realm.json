@@ -1,0 +1,105 @@
+{
+  "realm": "journal",
+  "displayName": "Fintrellis Journal",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "roles": {
+    "realm": [
+      { "name": "reader", "description": "Read published posts" },
+      { "name": "editor", "description": "Create and edit posts" },
+      { "name": "administrator", "description": "Create, edit, and delete posts" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "journal-web",
+      "name": "Journal web application",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "redirectUris": [
+        "http://localhost:5173/auth/callback",
+        "http://localhost:8088/auth/callback"
+      ],
+      "webOrigins": ["http://localhost:5173", "http://localhost:8088"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/##http://localhost:8088/"
+      },
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins"],
+      "protocolMappers": [
+        {
+          "name": "journal-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "journal-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "journal-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "10000000-0000-0000-0000-000000000001",
+      "username": "reader",
+      "firstName": "Robin",
+      "lastName": "Reader",
+      "email": "reader@journal.example",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["reader"],
+      "credentials": [{ "type": "password", "value": "reader-local", "temporary": false }]
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000002",
+      "username": "editor",
+      "firstName": "Ellis",
+      "lastName": "Editor",
+      "email": "editor@journal.example",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["editor"],
+      "credentials": [{ "type": "password", "value": "editor-local", "temporary": false }]
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000003",
+      "username": "admin",
+      "firstName": "Alex",
+      "lastName": "Administrator",
+      "email": "admin@journal.example",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["administrator"],
+      "credentials": [{ "type": "password", "value": "admin-local", "temporary": false }]
+    }
+  ]
+}
