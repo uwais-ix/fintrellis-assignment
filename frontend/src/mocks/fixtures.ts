@@ -45,7 +45,7 @@ export function seedPosts(): Post[] {
       authorSubject: "editor",
       authorName: "Ellis Editor",
       createdAt: seededAt,
-      updatedAt: "2026-11-01T10:10:00Z",
+      updatedAt: "2026-11-09T10:10:00Z",
       version: 2,
     },
   ];
