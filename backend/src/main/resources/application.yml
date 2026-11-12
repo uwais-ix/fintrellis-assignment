@@ -1,6 +1,14 @@
 spring:
   application:
     name: fintrellis-journal
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:55432/journal}
+    username: ${DATABASE_USERNAME:journal}
+    password: ${DATABASE_PASSWORD:journal-local}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
 
 server:
   port: ${SERVER_PORT:8080}

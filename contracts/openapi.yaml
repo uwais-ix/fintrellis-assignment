@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Fintrellis Journal API
+  version: 1.0.0
+  description: A shared editorial workspace. Editors write; administrators can also delete.
+servers:
+  - url: /api
+tags:
+  - name: Posts
+paths:
+  /posts:
+    get:
+      operationId: listPosts
+      tags: [Posts]
+      summary: Read a page of posts, most recently updated first
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 30, default: 9 }
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 100, default: '' }
+      responses:
+        '200':
+          description: A page of posts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostPage' }
+        '400': { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: createPost
+      tags: [Posts]
+      summary: Create a post as an editor or administrator
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePost' }
+      responses:
+        '201':
+          description: Post created
+          headers:
+            Location:
+              schema: { type: string }
+              description: Relative URL of the created post
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getPost
+      tags: [Posts]
+      summary: Read a post
+      responses:
+        '200':
+          description: Post details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: updatePost
+      tags: [Posts]
+      summary: Replace a post as an editor or administrator
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdatePost' }
+      responses:
+        '200':
+          description: Updated post
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: deletePost
+      tags: [Posts]
+      summary: Delete a post as an administrator
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Post deleted }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Problem:
+      description: RFC 9457 error response
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    CreatePost:
+      type: object
+      required: [title, content]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 160 }
+        content: { type: string, minLength: 1, maxLength: 20000 }
+    UpdatePost:
+      allOf:
+        - $ref: '#/components/schemas/CreatePost'
+        - type: object
+          required: [version]
+          properties:
+            version: { type: integer, format: int64, minimum: 0 }
+    Post:
+      type: object
+      required: [id, title, content, authorSubject, authorName, createdAt, updatedAt, version]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        content: { type: string }
+        authorSubject: { type: string }
+        authorName: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer, format: int64 }
+    PostSummary:
+      type: object
+      required: [id, title, excerpt, authorName, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        excerpt: { type: string }
+        authorName: { type: string }
+        updatedAt: { type: string, format: date-time }
+    PostPage:
+      type: object
+      required: [items, page, size, totalElements, totalPages]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/PostSummary' }
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+    Problem:
+      type: object
+      required: [type, title, status, detail, instance, requestId]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri }
+        requestId: { type: string }
+        fieldErrors:
+          type: object
+          additionalProperties: { type: string }
