@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/posts")
 class PostController {
   private final PostService posts;
+  private final PostWebMapper mapper;
 
-  PostController(PostService posts) {
+  PostController(PostService posts, PostWebMapper mapper) {
     this.posts = posts;
+    this.mapper = mapper;
   }
 
   @GetMapping
@@ -32,24 +34,24 @@ class PostController {
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "9") @Min(1) @Max(30) int size,
       @RequestParam(defaultValue = "") @Size(max = 100) String q) {
-    return PostPage.from(posts.list(page, size, q));
+    return mapper.toPage(posts.list(page, size, q));
   }
 
   @GetMapping("/{id}")
   PostResponse get(@PathVariable UUID id) {
-    return PostResponse.from(posts.get(id));
+    return mapper.toResponse(posts.get(id));
   }
 
   @PostMapping
   ResponseEntity<PostResponse> create(@Valid @RequestBody CreatePostRequest request) {
     var post = posts.create(request.title(), request.content());
     return ResponseEntity.created(URI.create("/api/posts/" + post.getId()))
-        .body(PostResponse.from(post));
+        .body(mapper.toResponse(post));
   }
 
   @PutMapping("/{id}")
   PostResponse update(@PathVariable UUID id, @Valid @RequestBody UpdatePostRequest request) {
-    return PostResponse.from(
+    return mapper.toResponse(
         posts.update(id, request.title(), request.content(), request.version()));
   }
 
