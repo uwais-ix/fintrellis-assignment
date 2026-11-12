@@ -9,6 +9,13 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER:http://localhost:8180/realms/journal}
+          jwk-set-uri: ${OIDC_JWK_SET_URI:http://localhost:8180/realms/journal/protocol/openid-connect/certs}
+          audiences: journal-api
 
 server:
   port: ${SERVER_PORT:8080}

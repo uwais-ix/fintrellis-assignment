@@ -1,0 +1,68 @@
+package mu.uwais.fintrellis.identity.internal;
+
+import mu.uwais.fintrellis.web.ProblemResponses;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
+@Configuration(proxyBeanMethods = false)
+class SecurityConfiguration {
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity http, ProblemResponses problems)
+      throws Exception {
+    AuthenticationEntryPoint unauthorized =
+        (request, response, exception) -> {
+          response.setHeader("WWW-Authenticate", "Bearer");
+          problems.write(request, response, HttpStatus.UNAUTHORIZED, "Sign in to continue.");
+        };
+    AccessDeniedHandler forbidden =
+        (request, response, exception) ->
+            problems.write(
+                request, response, HttpStatus.FORBIDDEN, "Your role does not allow this action.");
+
+    var authorities = new JwtGrantedAuthoritiesConverter();
+    authorities.setAuthoritiesClaimName("roles");
+    authorities.setAuthorityPrefix("ROLE_");
+    var authenticationConverter = new JwtAuthenticationConverter();
+    authenticationConverter.setJwtGrantedAuthoritiesConverter(authorities);
+
+    return http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .requestCache(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers("/actuator/health", "/actuator/health/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/*")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/posts")
+                    .hasAnyRole("editor", "administrator")
+                    .requestMatchers(HttpMethod.PUT, "/api/posts/*")
+                    .hasAnyRole("editor", "administrator")
+                    .requestMatchers(HttpMethod.DELETE, "/api/posts/*")
+                    .hasRole("administrator")
+                    .anyRequest()
+                    .denyAll())
+        .exceptionHandling(
+            exceptions ->
+                exceptions.authenticationEntryPoint(unauthorized).accessDeniedHandler(forbidden))
+        .oauth2ResourceServer(
+            oauth ->
+                oauth
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter))
+                    .authenticationEntryPoint(unauthorized)
+                    .accessDeniedHandler(forbidden))
+        .build();
+  }
+}
