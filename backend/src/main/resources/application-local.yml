@@ -1,0 +1,8 @@
+logging:
+  level:
+    mu.uwais.fintrellis: DEBUG
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
