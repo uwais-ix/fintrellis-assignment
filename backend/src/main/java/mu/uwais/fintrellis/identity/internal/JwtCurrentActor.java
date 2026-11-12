@@ -15,10 +15,6 @@ class JwtCurrentActor implements CurrentActor {
     if (!(authentication instanceof JwtAuthenticationToken token)) {
       throw new AuthenticationCredentialsNotFoundException("Authentication is required");
     }
-    String name = token.getToken().getClaimAsString("name");
-    if (name == null || name.isBlank()) {
-      name = token.getToken().getClaimAsString("preferred_username");
-    }
-    return new Actor(token.getToken().getSubject(), name == null ? "Contributor" : name);
+    return ActorClaims.from(token.getToken());
   }
 }
