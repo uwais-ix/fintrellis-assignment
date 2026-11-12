@@ -76,7 +76,7 @@ pnpm test:e2e        # browser journey against the running stack
 `/usr/lib/jvm` installation. The same checks run in GitHub Actions, with an
 additional Playwright job that starts the Compose stack.
 
-The current suite has 23 backend tests, 20 frontend tests, and 3 browser journeys.
+The current suite has 23 backend tests, 21 frontend tests, and 4 browser journeys.
 The browser journeys use the real identity provider and database, not mocks.
 
 ### Test coverage

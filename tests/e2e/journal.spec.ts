@@ -48,6 +48,16 @@ test("a reader cannot reach the editor", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Your role cannot do that" })).toBeVisible();
 });
 
+test("an editor can write but cannot delete", async ({ page }) => {
+  await page.goto("/");
+  await signIn(page, "editor", "editor-local");
+
+  await expect(page.getByRole("link", { name: "Write a note" })).toBeVisible();
+  await page.getByRole("link", { name: "A calmer way to review a release" }).click();
+  await expect(page.getByRole("link", { name: "Edit" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Delete" })).not.toBeVisible();
+});
+
 test("a signed-out visitor can read but not write", async ({ page }) => {
   await page.goto("/");
 
