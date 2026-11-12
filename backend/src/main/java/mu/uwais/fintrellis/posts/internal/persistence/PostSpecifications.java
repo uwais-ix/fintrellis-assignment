@@ -5,7 +5,7 @@ import java.util.Locale;
 import mu.uwais.fintrellis.posts.internal.domain.Post;
 import org.springframework.data.jpa.domain.Specification;
 
-public final class PostSpecifications {
+final class PostSpecifications {
   private static final char ESCAPE = '\\';
 
   private PostSpecifications() {}

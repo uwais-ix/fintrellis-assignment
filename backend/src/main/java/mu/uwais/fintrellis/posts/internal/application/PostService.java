@@ -7,7 +7,6 @@ import mu.uwais.fintrellis.identity.Actor;
 import mu.uwais.fintrellis.identity.CurrentActor;
 import mu.uwais.fintrellis.posts.internal.domain.Post;
 import mu.uwais.fintrellis.posts.internal.persistence.PostRepository;
-import mu.uwais.fintrellis.posts.internal.persistence.PostSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +24,7 @@ public class PostService {
 
   public Page<Post> list(int page, int size, String query) {
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt", "id"));
-    return posts.findAll(PostSpecifications.matching(query), pageable);
+    return posts.search(query, pageable);
   }
 
   public Post get(UUID id) {
