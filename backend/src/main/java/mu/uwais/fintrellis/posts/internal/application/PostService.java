@@ -26,7 +26,8 @@ public class PostService {
 
   public Page<Post> list(int page, int size, String query) {
     var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt", "id"));
-    return posts.search(query.strip(), pageable);
+    String term = query.strip();
+    return term.isEmpty() ? posts.findAll(pageable) : posts.search(term, pageable);
   }
 
   public Post get(UUID id) {
