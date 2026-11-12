@@ -1,0 +1,14 @@
+/node_modules/
+**/node_modules/
+**/target/
+**/dist/
+**/coverage/
+/test-results/
+/playwright-report/
+.env
+.env.local
+.idea/
+.vscode/
+*.log
+/*.pdf
+.DS_Store
