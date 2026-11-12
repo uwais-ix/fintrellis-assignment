@@ -10,7 +10,10 @@
     "typecheck": "pnpm --filter frontend typecheck",
     "test": "pnpm --filter frontend test",
     "test:e2e": "playwright test",
-    "verify": "bash scripts/verify.sh"
+    "verify": "bash scripts/verify.sh",
+    "quality:up": "docker compose --profile quality up -d",
+    "quality:down": "docker compose --profile quality down",
+    "quality:scan": "bash scripts/sonar-scan.sh"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0"

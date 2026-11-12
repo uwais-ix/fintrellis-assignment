@@ -13,6 +13,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "api:generate": "openapi-typescript ../contracts/openapi.yaml -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
