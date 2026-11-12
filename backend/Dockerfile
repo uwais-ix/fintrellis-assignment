@@ -1,6 +1,6 @@
 FROM maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /workspace
-COPY backend/pom.xml backend/checkstyle.xml ./
+COPY backend/pom.xml backend/checkstyle.xml backend/lombok.config ./
 RUN mvn -B -q dependency:go-offline
 COPY backend/src ./src
 RUN mvn -B -q package -DskipTests
