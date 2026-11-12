@@ -13,7 +13,7 @@ reading; invited members can write and edit; administrators can also delete.
 
 ## Quick start
 
-The reviewer environment runs everything, including local Keycloak and sample
+The container environment runs everything, including local Keycloak and sample
 content:
 
 ```bash
@@ -87,7 +87,7 @@ The browser journeys use the real identity provider and database, not mocks.
 - Role enforcement at the HTTP boundary and consistent authentication errors.
 - Request problem parsing, form validation, list rendering, search, empty state,
   and service failure in the browser application.
-- Administrator, reader, and signed-out journeys through real Keycloak.
+- Administrator, editor, reader, and signed-out journeys through real Keycloak.
 
 ## Structure
 
@@ -151,8 +151,8 @@ conflict, forbidden, and service-error states each have a designed response.
 ## Trade-offs
 
 - One deployable application is easier to operate than microservices and matches
-  the assignment's scope. Module boundaries leave room to split later.
-- Read access is public to keep the assessment focused on CRUD and permissions.
+  the project's scope. Module boundaries leave room to split later.
+- Read access is public to keep the project focused on CRUD and permissions.
   A private journal would add a role check to the read endpoints.
 - Text is plain rather than rich; this keeps the data model and validation simple.
 - Optimistic concurrency is implemented, but there is no collaborative presence or
