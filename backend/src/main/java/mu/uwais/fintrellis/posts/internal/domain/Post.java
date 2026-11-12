@@ -8,9 +8,14 @@ import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "posts")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
   @Id private UUID id;
 
@@ -33,8 +38,6 @@ public class Post {
   private Instant updatedAt;
 
   @Version private long version;
-
-  protected Post() {}
 
   public static Post create(
       String title, String content, String authorSubject, String authorName, Instant now) {
@@ -61,37 +64,5 @@ public class Post {
           field + " must contain 1 to " + maximumLength + " characters");
     }
     return value.strip();
-  }
-
-  public UUID getId() {
-    return id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getContent() {
-    return content;
-  }
-
-  public String getAuthorSubject() {
-    return authorSubject;
-  }
-
-  public String getAuthorName() {
-    return authorName;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public long getVersion() {
-    return version;
   }
 }

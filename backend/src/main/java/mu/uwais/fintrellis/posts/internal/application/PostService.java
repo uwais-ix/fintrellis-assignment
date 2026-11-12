@@ -2,6 +2,7 @@ package mu.uwais.fintrellis.posts.internal.application;
 
 import java.time.Clock;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import mu.uwais.fintrellis.identity.CurrentActor;
 import mu.uwais.fintrellis.posts.internal.domain.Post;
 import mu.uwais.fintrellis.posts.internal.persistence.PostRepository;
@@ -13,16 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostService {
   private final PostRepository posts;
   private final CurrentActor currentActor;
   private final Clock clock;
-
-  public PostService(PostRepository posts, CurrentActor currentActor, Clock clock) {
-    this.posts = posts;
-    this.currentActor = currentActor;
-    this.clock = clock;
-  }
 
   public Page<Post> list(int page, int size, String query) {
     var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt", "id"));

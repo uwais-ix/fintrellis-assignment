@@ -3,9 +3,9 @@ package mu.uwais.fintrellis.web.internal;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import mu.uwais.fintrellis.web.ProblemResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 @Order(1)
+@RequiredArgsConstructor
+@Slf4j
 class ApiExceptionHandler extends ResponseEntityExceptionHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
   private final ProblemResponses problems;
-
-  ApiExceptionHandler(ProblemResponses problems) {
-    this.problems = problems;
-  }
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -73,7 +70,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   ProblemDetail unexpected(Exception exception, HttpServletRequest request) {
-    LOGGER.error(
+    log.error(
         "Unexpected request failure requestId={}", request.getAttribute("requestId"), exception);
     return problems.create(
         request, HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Try again shortly.");

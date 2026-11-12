@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -12,12 +13,9 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
+@RequiredArgsConstructor
 public class ProblemResponses {
   private final ObjectMapper objectMapper;
-
-  public ProblemResponses(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
 
   public ProblemDetail create(HttpServletRequest request, HttpStatusCode status, String detail) {
     ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.net.URI;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import mu.uwais.fintrellis.posts.internal.application.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,14 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/posts")
+@RequiredArgsConstructor
 class PostController {
   private final PostService posts;
   private final PostWebMapper mapper;
-
-  PostController(PostService posts, PostWebMapper mapper) {
-    this.posts = posts;
-    this.mapper = mapper;
-  }
 
   @GetMapping
   PostPage list(

@@ -1,6 +1,7 @@
 package mu.uwais.fintrellis.posts.internal.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import mu.uwais.fintrellis.posts.internal.application.PostNotFoundException;
 import mu.uwais.fintrellis.posts.internal.application.StalePostException;
 import mu.uwais.fintrellis.web.ProblemResponses;
@@ -13,12 +14,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = PostController.class)
 @Order(0)
+@RequiredArgsConstructor
 class PostExceptionHandler {
   private final ProblemResponses problems;
-
-  PostExceptionHandler(ProblemResponses problems) {
-    this.problems = problems;
-  }
 
   @ExceptionHandler(PostNotFoundException.class)
   ProblemDetail notFound(PostNotFoundException exception, HttpServletRequest request) {
