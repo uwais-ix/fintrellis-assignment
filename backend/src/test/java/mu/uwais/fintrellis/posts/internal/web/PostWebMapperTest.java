@@ -34,9 +34,9 @@ class PostWebMapperTest {
   @Test
   void collapsesWhitespaceAndShortensLongExcerpts() {
     Post post =
-        Post.create("A title", "First paragraph.\n\nSecond paragraph.", "editor-1", "Ellis", CREATED_AT);
-    Post longPost =
-        Post.create("A title", "x".repeat(200), "editor-1", "Ellis", CREATED_AT);
+        Post.create(
+            "A title", "First paragraph.\n\nSecond paragraph.", "editor-1", "Ellis", CREATED_AT);
+    Post longPost = Post.create("A title", "x".repeat(200), "editor-1", "Ellis", CREATED_AT);
 
     assertThat(mapper.toSummary(post).excerpt()).isEqualTo("First paragraph. Second paragraph.");
     assertThat(mapper.toSummary(longPost).excerpt()).hasSize(181).endsWith("…");
