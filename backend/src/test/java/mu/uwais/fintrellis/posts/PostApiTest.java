@@ -64,12 +64,31 @@ class PostApiTest extends PostgresIntegrationTest {
   @Test
   void searchIsCaseInsensitiveAndTreatsWildcardsAsText() throws Exception {
     createPost("A quiet morning", "An idea worth sharing");
+    createPost("100% complete", "A progress note.");
+    createPost("snake_case notes", "A naming note.");
+    createPost("Path C:\\notes", "A path note.");
+
     mvc.perform(get("/api/posts").param("q", "QUIET"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalElements").value(1));
+    mvc.perform(get("/api/posts").param("q", "sharing"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1));
     mvc.perform(get("/api/posts").param("q", "%"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.totalElements").value(0));
+        .andExpect(jsonPath("$.totalElements").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("100% complete"));
+    mvc.perform(get("/api/posts").param("q", "_"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalElements").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("snake_case notes"));
+    mvc.perform(get("/api/posts").param("q", "\\"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalElements").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("Path C:\\notes"));
+    mvc.perform(get("/api/posts").param("q", "   "))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalElements").value(4));
   }
 
   @Test
