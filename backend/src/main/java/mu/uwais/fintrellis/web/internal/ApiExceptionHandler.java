@@ -64,7 +64,9 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 status.is5xxServerError()
                     ? "Something went wrong. Try again shortly."
                     : "The request could not be processed. Check its values.");
-    problems.enrich(((ServletWebRequest) request).getRequest(), problem);
+    if (request instanceof ServletWebRequest servletRequest) {
+      problems.enrich(servletRequest.getRequest(), problem);
+    }
     return super.handleExceptionInternal(exception, problem, headers, status, request);
   }
 

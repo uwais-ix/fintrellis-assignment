@@ -26,7 +26,7 @@ class RequestLoggingFilter extends OncePerRequestFilter {
     request.setAttribute("requestId", requestId);
     response.setHeader("X-Request-Id", requestId);
     long startedAt = System.nanoTime();
-    try (var ignored = MDC.putCloseable("requestId", requestId)) {
+    try (MDC.MDCCloseable ignored = MDC.putCloseable("requestId", requestId)) {
       try {
         chain.doFilter(request, response);
       } finally {
