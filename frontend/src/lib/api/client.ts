@@ -1,6 +1,5 @@
 import { getAccessToken } from "./access-token";
-
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api";
+import { API_BASE_URL } from "./config";
 
 export interface ProblemInput {
   status: number;
@@ -85,7 +84,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   let response: Response;
   try {
-    const url = new URL(`${baseUrl}${path}`, window.location.origin);
+    const url = new URL(`${API_BASE_URL}${path}`, window.location.origin);
     response = await fetch(url, {
       method: options.method ?? "GET",
       headers,

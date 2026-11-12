@@ -1,6 +1,7 @@
 package mu.uwais.fintrellis.identity.internal;
 
 import java.util.Arrays;
+import mu.uwais.fintrellis.web.ApiPaths;
 import mu.uwais.fintrellis.web.ProblemResponses;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,10 +63,10 @@ class SecurityConfiguration {
             problems.write(
                 request, response, HttpStatus.FORBIDDEN, "Your role does not allow this action.");
 
-    var authorities = new JwtGrantedAuthoritiesConverter();
+    JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
     authorities.setAuthoritiesClaimName("roles");
     authorities.setAuthorityPrefix("ROLE_");
-    var authenticationConverter = new JwtAuthenticationConverter();
+    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
     authenticationConverter.setJwtGrantedAuthoritiesConverter(authorities);
 
     return http.csrf(AbstractHttpConfigurer::disable)
@@ -77,13 +78,13 @@ class SecurityConfiguration {
                 authorize
                     .requestMatchers("/actuator/health", "/actuator/health/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/*")
+                    .requestMatchers(HttpMethod.GET, ApiPaths.POSTS, ApiPaths.POSTS + "/*")
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/posts")
+                    .requestMatchers(HttpMethod.POST, ApiPaths.POSTS)
                     .hasAnyRole("editor", "administrator")
-                    .requestMatchers(HttpMethod.PUT, "/api/posts/*")
+                    .requestMatchers(HttpMethod.PUT, ApiPaths.POSTS + "/*")
                     .hasAnyRole("editor", "administrator")
-                    .requestMatchers(HttpMethod.DELETE, "/api/posts/*")
+                    .requestMatchers(HttpMethod.DELETE, ApiPaths.POSTS + "/*")
                     .hasRole("administrator")
                     .anyRequest()
                     .denyAll())

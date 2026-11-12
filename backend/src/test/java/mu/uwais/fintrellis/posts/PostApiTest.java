@@ -1,6 +1,7 @@
 package mu.uwais.fintrellis.posts;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Map;
 import mu.uwais.fintrellis.PostgresIntegrationTest;
+import mu.uwais.fintrellis.web.ApiPaths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,7 @@ class PostApiTest extends PostgresIntegrationTest {
     JsonNode created = createPost("  A thoughtful title  ", "A useful body.");
     String id = created.get("id").asText();
 
-    mvc.perform(get("/api/posts/{id}", id))
+    mvc.perform(get(ApiPaths.POSTS + "/{id}", id))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.title").value("A thoughtful title"))
         .andExpect(jsonPath("$.authorSubject").value("editor-1"))
@@ -52,7 +54,7 @@ class PostApiTest extends PostgresIntegrationTest {
     createPost("First", "First body");
     createPost("Second", "Second body");
 
-    mvc.perform(get("/api/posts").param("size", "1"))
+    mvc.perform(get(ApiPaths.POSTS).param("size", "1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items.length()").value(1))
         .andExpect(jsonPath("$.items[0].title").value("Second"))
@@ -68,25 +70,25 @@ class PostApiTest extends PostgresIntegrationTest {
     createPost("snake_case notes", "A naming note.");
     createPost("Path C:\\notes", "A path note.");
 
-    mvc.perform(get("/api/posts").param("q", "QUIET"))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "QUIET"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1));
-    mvc.perform(get("/api/posts").param("q", "sharing"))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "sharing"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1));
-    mvc.perform(get("/api/posts").param("q", "%"))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "%"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1))
         .andExpect(jsonPath("$.items[0].title").value("100% complete"));
-    mvc.perform(get("/api/posts").param("q", "_"))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "_"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1))
         .andExpect(jsonPath("$.items[0].title").value("snake_case notes"));
-    mvc.perform(get("/api/posts").param("q", "\\"))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "\\"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(1))
         .andExpect(jsonPath("$.items[0].title").value("Path C:\\notes"));
-    mvc.perform(get("/api/posts").param("q", "   "))
+    mvc.perform(get(ApiPaths.POSTS).param("q", "   "))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements").value(4));
   }
@@ -98,31 +100,31 @@ class PostApiTest extends PostgresIntegrationTest {
     String update = json(Map.of("title", "Revised", "content", "Revised body", "version", 0));
 
     mvc.perform(
-            put("/api/posts/{id}", id)
+            put(ApiPaths.POSTS + "/{id}", id)
                 .with(editor())
                 .contentType("application/json")
                 .content(update))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.version").value(1));
     mvc.perform(
-            put("/api/posts/{id}", id)
+            put(ApiPaths.POSTS + "/{id}", id)
                 .with(editor())
                 .contentType("application/json")
                 .content(update))
         .andExpect(status().isConflict())
         .andExpect(content().contentTypeCompatibleWith("application/problem+json"));
-    mvc.perform(get("/api/posts/{id}", id)).andExpect(jsonPath("$.title").value("Revised"));
+    mvc.perform(get(ApiPaths.POSTS + "/{id}", id)).andExpect(jsonPath("$.title").value("Revised"));
   }
 
   @Test
   void administratorsCanDeletePosts() throws Exception {
     String id = createPost("Remove me", "Body").get("id").asText();
     mvc.perform(
-            delete("/api/posts/{id}", id)
+            delete(ApiPaths.POSTS + "/{id}", id)
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_administrator"))))
         .andExpect(status().isNoContent())
         .andExpect(content().string(""));
-    mvc.perform(get("/api/posts/{id}", id))
+    mvc.perform(get(ApiPaths.POSTS + "/{id}", id))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.requestId").isNotEmpty());
   }
@@ -130,7 +132,7 @@ class PostApiTest extends PostgresIntegrationTest {
   @Test
   void validationReportsFieldErrorsWithoutSavingAnything() throws Exception {
     mvc.perform(
-            post("/api/posts")
+            post(ApiPaths.POSTS)
                 .with(editor())
                 .contentType("application/json")
                 .content(json(Map.of("title", " ", "content", ""))))
@@ -143,18 +145,18 @@ class PostApiTest extends PostgresIntegrationTest {
 
   @Test
   void invalidPaginationAndIdentifiersAreBadRequests() throws Exception {
-    mvc.perform(get("/api/posts").param("size", "31")).andExpect(status().isBadRequest());
-    mvc.perform(get("/api/posts").param("page", "-1")).andExpect(status().isBadRequest());
-    mvc.perform(get("/api/posts/not-a-uuid")).andExpect(status().isBadRequest());
+    mvc.perform(get(ApiPaths.POSTS).param("size", "31")).andExpect(status().isBadRequest());
+    mvc.perform(get(ApiPaths.POSTS).param("page", "-1")).andExpect(status().isBadRequest());
+    mvc.perform(get(ApiPaths.POSTS + "/not-a-uuid")).andExpect(status().isBadRequest());
   }
 
   @Test
   void malformedJsonAndMissingVersionAreBadRequests() throws Exception {
-    mvc.perform(post("/api/posts").with(editor()).contentType("application/json").content("{"))
+    mvc.perform(post(ApiPaths.POSTS).with(editor()).contentType("application/json").content("{"))
         .andExpect(status().isBadRequest());
     String id = createPost("Title", "Body").get("id").asText();
     mvc.perform(
-            put("/api/posts/{id}", id)
+            put(ApiPaths.POSTS + "/{id}", id)
                 .with(editor())
                 .contentType("application/json")
                 .content(json(Map.of("title", "Changed", "content", "Body"))))
@@ -164,12 +166,12 @@ class PostApiTest extends PostgresIntegrationTest {
   private JsonNode createPost(String title, String body) throws Exception {
     var response =
         mvc.perform(
-                post("/api/posts")
+                post(ApiPaths.POSTS)
                     .with(editor())
                     .contentType("application/json")
                     .content(json(Map.of("title", title, "content", body))))
             .andExpect(status().isCreated())
-            .andExpect(header().exists("Location"))
+            .andExpect(header().string("Location", startsWith(ApiPaths.POSTS + "/")))
             .andReturn()
             .getResponse();
     return objectMapper.readTree(response.getContentAsString());

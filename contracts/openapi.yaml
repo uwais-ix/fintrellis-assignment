@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: A shared editorial workspace. Editors write; administrators can also delete.
 servers:
-  - url: /api
+  - url: /api/v1
 tags:
   - name: Posts
 paths:

@@ -51,6 +51,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-journal-local}
       OIDC_ISSUER: http://localhost:8180/realms/journal
       OIDC_JWK_SET_URI: http://keycloak:8080/realms/journal/protocol/openid-connect/certs
+      SPRING_PROFILES_ACTIVE: demo
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
@@ -64,7 +65,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE_API_BASE_URL: /api
+        VITE_API_BASE_URL: /api/v1
         VITE_OIDC_AUTHORITY: http://localhost:8180/realms/journal
         VITE_OIDC_CLIENT_ID: journal-web
         VITE_OIDC_REDIRECT_URI: http://localhost:8088/auth/callback

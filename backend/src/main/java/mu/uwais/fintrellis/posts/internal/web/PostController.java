@@ -8,6 +8,8 @@ import java.net.URI;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import mu.uwais.fintrellis.posts.internal.application.PostService;
+import mu.uwais.fintrellis.posts.internal.domain.Post;
+import mu.uwais.fintrellis.web.ApiPaths;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping(ApiPaths.POSTS)
 @RequiredArgsConstructor
 class PostController {
   private final PostService posts;
@@ -41,8 +43,8 @@ class PostController {
 
   @PostMapping
   ResponseEntity<PostResponse> create(@Valid @RequestBody CreatePostRequest request) {
-    var post = posts.create(request.title(), request.content());
-    return ResponseEntity.created(URI.create("/api/posts/" + post.getId()))
+    Post post = posts.create(request.title(), request.content());
+    return ResponseEntity.created(URI.create(ApiPaths.POSTS + "/" + post.getId()))
         .body(mapper.toResponse(post));
   }
 

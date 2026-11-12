@@ -1,4 +1,5 @@
 import { delay, HttpResponse, http } from "msw";
+import { API_V1 } from "@/lib/api/config";
 import type { Post, PostPage, PostSummary } from "@/lib/api/types";
 import { seedPosts } from "./fixtures";
 import { getMockRole, getMockScenario } from "./scenario";
@@ -74,7 +75,7 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
 }
 
 export const handlers = [
-  http.get("/api/posts", async ({ request }) => {
+  http.get(`${API_V1}/posts`, async ({ request }) => {
     await delay(220);
     if (getMockScenario() === "error") {
       return problem(503, "Service unavailable", "The journal is temporarily unavailable.");
@@ -105,14 +106,14 @@ export const handlers = [
       : HttpResponse.json(payload);
   }),
 
-  http.get("/api/posts/:id", async ({ params }) => {
+  http.get(`${API_V1}/posts/:id`, async ({ params }) => {
     await delay(160);
     const post = posts.find((candidate) => candidate.id === params.id);
     if (!post) return problem(404, "Not found", "This post could not be found.");
     return HttpResponse.json(post);
   }),
 
-  http.post("/api/posts", async ({ request }) => {
+  http.post(`${API_V1}/posts`, async ({ request }) => {
     await delay(260);
     if (!signedIn()) return problem(401, "Unauthorized", "Sign in to continue.");
     if (!mayWrite()) return problem(403, "Forbidden", "Your role does not allow this action.");
@@ -132,10 +133,13 @@ export const handlers = [
       version: 0,
     };
     posts = [post, ...posts];
-    return HttpResponse.json(post, { status: 201, headers: { Location: `/api/posts/${post.id}` } });
+    return HttpResponse.json(post, {
+      status: 201,
+      headers: { Location: `${API_V1}/posts/${post.id}` },
+    });
   }),
 
-  http.put("/api/posts/:id", async ({ params, request }) => {
+  http.put(`${API_V1}/posts/:id`, async ({ params, request }) => {
     await delay(260);
     if (!signedIn()) return problem(401, "Unauthorized", "Sign in to continue.");
     if (!mayWrite()) return problem(403, "Forbidden", "Your role does not allow this action.");
@@ -164,7 +168,7 @@ export const handlers = [
     return HttpResponse.json(updated);
   }),
 
-  http.delete("/api/posts/:id", async ({ params }) => {
+  http.delete(`${API_V1}/posts/:id`, async ({ params }) => {
     await delay(220);
     if (!signedIn()) return problem(401, "Unauthorized", "Sign in to continue.");
     if (getMockRole() !== "administrator" || getMockScenario() === "forbidden") {
