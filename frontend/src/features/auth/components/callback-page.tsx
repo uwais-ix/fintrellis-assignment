@@ -9,7 +9,7 @@ export function CallbackPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session.status === "authenticated") navigate("/", { replace: true });
+    if (session.status === "authenticated") void navigate("/", { replace: true });
   }, [session.status, navigate]);
 
   if (session.status === "anonymous") {

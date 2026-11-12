@@ -50,7 +50,7 @@ export function PostsPage() {
   }
 
   function dismissNotice() {
-    navigate(location.pathname, { replace: true, state: null });
+    void navigate(location.pathname, { replace: true, state: null });
   }
 
   return (
