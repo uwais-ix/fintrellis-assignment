@@ -3,6 +3,7 @@
 **/target/
 **/dist/
 **/coverage/
+/build/
 /test-results/
 /playwright-report/
 .env
