@@ -33,6 +33,7 @@ export function PostsPage() {
   const posts = useQuery(postsQueryOptions({ page, size: pageSize, query }));
   const notice = (location.state as LocationState | null)?.notice;
   const problem = posts.error instanceof ApiProblem ? posts.error : null;
+  const totalElements = posts.data?.totalElements ?? 0;
 
   function submitSearch(term: string) {
     const next = new URLSearchParams(searchParams);
@@ -202,12 +203,18 @@ export function PostsPage() {
         <div className="rounded-lg border border-dashed border-border px-6 py-16 text-center">
           <Badge>Empty</Badge>
           <h2 className="mt-4 font-serif text-3xl font-medium text-foreground">
-            {query ? "No notes match that search" : "The journal is waiting for its first note"}
+            {query
+              ? "No notes match that search"
+              : totalElements > 0
+                ? "This page has no notes"
+                : "The journal is waiting for its first note"}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
             {query
               ? "Try a shorter phrase, or clear the search to see every note."
-              : "Start with something small: a decision, an observation, or a lesson worth sharing."}
+              : totalElements > 0
+                ? "The page number is beyond the end of the journal."
+                : "Start with something small: a decision, an observation, or a lesson worth sharing."}
           </p>
           {query ? (
             <Button
@@ -219,6 +226,10 @@ export function PostsPage() {
               }}
             >
               Clear search
+            </Button>
+          ) : totalElements > 0 ? (
+            <Button variant="outline" className="mt-6" onClick={() => goToPage(0)}>
+              Back to the first page
             </Button>
           ) : session.canCreate ? (
             <Button asChild className="mt-6">

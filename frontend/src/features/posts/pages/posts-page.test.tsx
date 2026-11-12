@@ -44,4 +44,11 @@ describe("posts page", () => {
       expect(screen.queryByText("Why we write decisions down")).not.toBeInTheDocument(),
     );
   });
+
+  it("distinguishes an out-of-range page from an empty journal", async () => {
+    renderWithProviders(<PostsPage />, "/?page=99");
+
+    expect(await screen.findByText("This page has no notes")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back to the first page" })).toBeInTheDocument();
+  });
 });
